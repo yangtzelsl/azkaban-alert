@@ -8,7 +8,8 @@ import azkaban.sla.SlaOption;
 import azkaban.utils.AbstractMailer;
 import azkaban.utils.EmailMessageCreator;
 import azkaban.utils.Props;
-import com.google.gson.JsonObject;
+import cn.gjing.http.HttpClient;
+import cn.gjing.http.HttpMethod;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class WeChatAlerter extends AbstractMailer implements Alerter {
      */
     @Override
     public void alertOnSuccess(ExecutableFlow exflow) throws Exception {
-
+        logger.info("任务成功了，恭喜您！");
     }
 
     /**
@@ -58,6 +59,7 @@ public class WeChatAlerter extends AbstractMailer implements Alerter {
         // 企业微信API: https://work.weixin.qq.com/api/doc/90000/90136/91770
 
         //一般来说网络电话服务都是通过HTTP请求发送的，这里可以调用shell发送HTTP请求
+        /*
         JsonObject alert = new JsonObject();
         alert.addProperty("app", appKey);
         alert.addProperty("eventId", exflow.getId());
@@ -73,9 +75,30 @@ public class WeChatAlerter extends AbstractMailer implements Alerter {
         cmd[5] = "-d";
         cmd[6] = alert.toString();
         cmd[7] = url;
-        logger.info("Sending wechat robot alert!");
+        System.out.println(cmd.toString());
+         logger.info("Sending wechat robot alert!");
         Runtime.getRuntime().exec(cmd);
+        */
 
+        logger.info("任务失败了，请及时处理...");
+
+        // 使用HTTP的方式发送请求
+        String url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc335a5-xxxx-xxxx-bb8b-61c1b72a79b7";
+        String ss = "{\n" +
+                "    \"msgtype\": \"text\",\n" +
+                "    \"text\": {\n" +
+                "        \"content\": \"广州今日天气111：29度，大部分多云，降雨概率：60%\",\n" +
+                "        \"mentioned_list\":[\"wangqing\",\"@all\"],\n" +
+                "        \"mentioned_mobile_list\":[\"13800001111\",\"@all\"]\n" +
+                "    }\n" +
+                "}\n";
+        logger.info("发送的消息体内容为："+ss);
+        String str = HttpClient.builder(url, HttpMethod.POST, String.class)
+                .body(ss)
+                .execute()
+                .get();
+        logger.info("返回的结果集内容为："+str);
+        System.out.println(str);
     }
 
     /**
@@ -103,5 +126,4 @@ public class WeChatAlerter extends AbstractMailer implements Alerter {
     public void alertOnFailedExecutorHealthCheck(Executor executor, List<ExecutableFlow> list, ExecutorManagerException e, List<String> list1) {
 
     }
-
 }
