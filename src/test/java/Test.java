@@ -40,7 +40,7 @@ public class Test {
 
     @org.junit.Test
     public static void testHttp() {
-        String url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc335a5-5795-409d-bb8b-61c1b72a79b7";
+        String url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc335a5-xxxx-xxxx-bb8b-61c1b72a79b7";
         Map<String, Object> param = new HashMap<>();
         param.put("msgtype", "text");
         param.put("text", "content");
