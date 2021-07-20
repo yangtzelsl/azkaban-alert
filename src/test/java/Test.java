@@ -15,8 +15,13 @@ import java.util.Map;
  */
 public class Test {
 
+    /**
+     * 测试使用curl发送信息
+     *
+     * @param cmds
+     */
     @org.junit.Test
-    public static String execCurl(String[] cmds) {
+    public void execCurl(String[] cmds) {
         ProcessBuilder process = new ProcessBuilder(cmds);
         Process p;
         try {
@@ -28,18 +33,19 @@ public class Test {
                 builder.append(line);
                 builder.append(System.getProperty(","));
             }
-            return builder.toString();
+            System.out.println(builder.toString());
 
         } catch (IOException e) {
             System.out.print("error");
             e.printStackTrace();
         }
-        return null;
-
     }
 
+    /**
+     * 测试使用http发送信息
+     */
     @org.junit.Test
-    public static void testHttp() {
+    public void testHttp() {
         String url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc335a5-xxxx-xxxx-bb8b-61c1b72a79b7";
         Map<String, Object> param = new HashMap<>();
         param.put("msgtype", "text");
