@@ -11,6 +11,7 @@ import cn.gjing.http.HttpMethod;
 import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -68,7 +69,7 @@ public class WeChatAlerter implements Alerter {
         String markdownMessage = "{\n" +
                 "    \"msgtype\": \"markdown\",\n" +
                 "    \"markdown\": {\n" +
-                "        \"content\": \"<font color=\\\"warning\\\">任务失败请相关同事注意!</font>\n" +
+                "        \"content\": \"<font color=\\\"warning\\\">【任务失败】请相关同事注意!</font>\n" +
                 "         >项目名称: <font color=\\\"comment\\\">"+projectName+"</font>\n" +
                 "         >工作流名称: <font color=\\\"comment\\\">"+flowName+"</font>\n" +
                 "         >执行序号: <font color=\\\"comment\\\">"+executionId+"</font>\n" +
@@ -119,6 +120,38 @@ public class WeChatAlerter implements Alerter {
     @Override
     public void alertOnSla(SlaOption slaOption, String slaMessage) throws Exception {
 
+        logger.info("任务超时了，请及时处理...");
+
+        String flowName = slaOption.getFlowName();
+        String jobName = slaOption.getJobName();
+        Duration slaOptionDuration = slaOption.getDuration();
+
+        String url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=" + wechatKey;
+        String markdownMessage = "{\n" +
+                "    \"msgtype\": \"markdown\",\n" +
+                "    \"markdown\": {\n" +
+                "        \"content\": \"<font color=\\\"warning\\\">【任务超时】请相关同事注意!</font>\n" +
+                "         >任务名称: <font color=\\\"comment\\\">"+jobName+"</font>\n" +
+                "         >工作流名称: <font color=\\\"comment\\\">"+flowName+"</font>\n" +
+                "         >执行时间: <font color=\\\"comment\\\">"+slaOptionDuration.toString()+"</font>\n" +
+                "    }\n" +
+                "}";
+
+        logger.info("任务超时发送的消息体内容为：" + markdownMessage);
+
+        JsonObject alert = new JsonObject();
+        String[] cmd = new String[8];
+        cmd[0] = "curl";
+        cmd[1] = "-H";
+        cmd[2] = "Content-type: application/json";
+        cmd[3] = "-X";
+        cmd[4] = "POST";
+        cmd[5] = "-d";
+        cmd[6] = markdownMessage;
+        cmd[7] = url;
+
+        logger.info("发送请求的消息体是："+cmd.toString());
+        Runtime.getRuntime().exec(cmd);
     }
 
     @Override
